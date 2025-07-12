@@ -18,7 +18,7 @@ async def process_order_id(message: Message):
         summary = (
             f"🧾 Заявка #{order_id}\n"
             f"Сервис: {order['service']}\n"
-            f"Сумма: {order['price']} ₽\n"
+            f"Сумма: {order['amount']} ₽\n"
             f"Имя: {order.get('name') or 'не указано'}\n"
             f"Метод: {order.get('method') or 'не указано'}\n"
             f"Контакт: {order.get('contact') or 'не указано'}\n"

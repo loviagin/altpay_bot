@@ -1,9 +1,9 @@
 from mongo import orders_collection
 
-async def create_order(order_id: str, price: float, service: str):
+async def create_order(order_id: str, amount: float, service: str):
     order = {
         "_id": order_id,
-        "price": price,
+        "amount": amount,
         "service": service,
         "name": None,
         "method": None,

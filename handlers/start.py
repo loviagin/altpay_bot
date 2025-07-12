@@ -18,7 +18,7 @@ async def start_handler(message: Message, state: FSMContext):
         if order:
             await state.update_data(order_id=order_id)
             await message.answer(
-                f"Заявка #{order_id}\nСумма: {order['price']} ₽\nСервис: {order['service']}"
+                f"Заявка #{order_id}\nСумма: {order['amount']} ₽\nСервис: {order['service']}"
             )
             await message.answer("Введите ваше имя:")
             await state.set_state(OrderStates.waiting_for_name)

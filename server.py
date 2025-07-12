@@ -19,13 +19,13 @@ async def save_order(request: Request):
     print("🛬 Данные запроса:", data, flush=True)
 
     order_id = data.get("id")
-    price = data.get("price")
+    amount = data.get("amount")
     service = data.get("service")
 
-    if not order_id or not price or not service:
+    if not order_id or not amount or not service:
         print("❌ Недостаточно данных", flush=True)
         return {"success": False, "message": "Недостаточно данных"}
 
-    await create_order(order_id, price, service)
+    await create_order(order_id, amount, service)
     print("✅ create_order вызвана", flush=True)
     return {"success": True}
