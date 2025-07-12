@@ -52,7 +52,7 @@ async def help_command(message: Message):
     )
 
 @router.message(Command("key"))
-async def get_all_orders(message: Message):
+async def get_orders(message: Message):
     data = await get_all_orders()
     await message.answer(
         data
