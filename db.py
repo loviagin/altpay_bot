@@ -1,4 +1,13 @@
-from mongo import orders_collection
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client.altpay
+orders_collection = db.orders
 
 async def create_order(order_id: str, price: float, service: str):
     order = {
@@ -11,6 +20,7 @@ async def create_order(order_id: str, price: float, service: str):
         "status": "ожидает данных"
     }
     await orders_collection.insert_one(order)
+    print(f"✅ Новый заказ сохранён: {order}")
 
 async def get_order(order_id: str):
     return await orders_collection.find_one({"_id": order_id})
