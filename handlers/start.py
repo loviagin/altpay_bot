@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from db import get_order, update_order
+from db import get_order, update_order, get_all_orders
 from states import OrderStates
 
 router = Router()
@@ -46,9 +46,16 @@ async def help_command(message: Message):
     await message.answer(
         "🛠 AltPay Bot — помощник для оплаты зарубежных сервисов.\n\n"
         "🔹 /new — создать новую заявку\n"
-        "🔹 /status — проверить статус\n"
-        "🔹 /help — помощь\n\n"
+        "🔹 /status — проверить статус заявки\n"
+        "🔹 /person — Позвать оператора\n\n"
         "Подробнее: https://altpay.lovigin.com"
+    )
+
+@router.message(Command("key"))
+async def getAllOrders(message: Message):
+    data = await get_all_orders("key")
+    await message.answer(
+        data
     )
 
 @router.message(OrderStates.waiting_for_name)
