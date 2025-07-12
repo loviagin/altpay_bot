@@ -1,8 +1,8 @@
-orders = {}
+from mongo import orders_collection
 
-def create_order(order_id, price, service):
-    orders[order_id] = {
-        "id": order_id,
+async def create_order(order_id: str, price: float, service: str):
+    order = {
+        "_id": order_id,
         "price": price,
         "service": service,
         "name": None,
@@ -10,6 +10,14 @@ def create_order(order_id, price, service):
         "contact": None,
         "status": "ожидает данных"
     }
+    await orders_collection.insert_one(order)
 
-def get_order(order_id):
-    return orders.get(order_id)
+async def get_order(order_id: str):
+    return await orders_collection.find_one({"_id": order_id})
+
+async def update_order(order_id: str, fields: dict):
+    await orders_collection.update_one({"_id": order_id}, {"$set": fields})
+
+async def get_all_orders():
+    cursor = orders_collection.find()
+    return [order async for order in cursor]

@@ -23,5 +23,5 @@ async def save_order(request: Request):
     if not order_id or not price or not service:
         return {"success": False, "message": "Недостаточно данных"}
 
-    create_order(order_id, price, service)
+    await create_order(order_id, price, service)
     return {"success": True}
