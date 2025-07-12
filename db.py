@@ -19,7 +19,6 @@ async def get_order(order_id: str):
 async def update_order(order_id: str, fields: dict):
     await orders_collection.update_one({"_id": order_id}, {"$set": fields})
 
-async def get_all_orders(key: str):
-    if key != "key": return []
+async def get_all_orders():
     cursor = orders_collection.find()
     return [order async for order in cursor]
