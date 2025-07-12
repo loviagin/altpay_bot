@@ -55,7 +55,7 @@ async def help_command(message: Message):
 async def fetch_orders(message: Message):
     data = await get_all_orders()
     text = "\n\n".join(
-        [f"#{o['_id']} • {o.get('price')}₽ • {o.get('service')}" for o in data]
+        [f"#{o['_id']} • ${o.get('amount')} • {o.get('service')} • {o.get('name')} • {o.get('method')} • {o.get('contact')} • {o.get('status')}" for o in data]
     ) or "Нет заявок."
     await message.answer(text)
 
