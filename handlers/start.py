@@ -52,11 +52,12 @@ async def help_command(message: Message):
     )
 
 @router.message(Command("key"))
-async def get_orders(message: Message):
+async def fetch_orders(message: Message):
     data = await get_all_orders()
-    await message.answer(
-        data
-    )
+    text = "\n\n".join(
+        [f"#{o['_id']} • {o.get('price')}₽ • {o.get('service')}" for o in data]
+    ) or "Нет заявок."
+    await message.answer(text)
 
 @router.message(OrderStates.waiting_for_name)
 async def get_name(message: Message, state: FSMContext):
