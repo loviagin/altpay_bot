@@ -85,6 +85,24 @@ async def help_command(message: Message):
     )
     logger.info(f"✅ Отправлен ответ на /help")
 
+@router.message(lambda msg: msg.text == "Позвать оператора")
+async def ask_for_help__person_command(message: Message):
+    logger.info(f"📥 Получена команда /person от {message.from_user.id if message.from_user else 'unknown'}")
+
+    await message.bot.send_message(
+        chat_id=ADMIN_ID,
+        text=(
+            f"‼️ Нужен оператор в чат {message.chat.id}"
+        )
+    )
+
+    await message.answer(
+        "Оператор скоро подключиться.\n\n"
+        "Мы из-за всех сил торопимся отвечать быстро 🫶",
+        keyboard=ReplyKeyboardRemove()
+    )
+    logger.info(f"✅ Отправлен ответ на /person")
+
 @router.message(Command(KEY))
 async def fetch_orders(message: Message):
     logger.info(f"📥 Получена команда /key от {message.from_user.id if message.from_user else 'unknown'}")
