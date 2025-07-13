@@ -20,3 +20,7 @@ python-dotenv
 uvicorn
 fastapi
 motor
+requests
+beautifulsoup4
+yfinance
+selenium
