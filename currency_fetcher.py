@@ -64,9 +64,11 @@ async def fetch_rub_to_byn() -> Optional[float]:
 def fetch_usd_to_kzt() -> float | None: 
     url = "https://guide.kaspi.kz/client/ru/app/q1971"
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--remote-debugging-port=9222")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     try:
@@ -131,8 +133,13 @@ async def fetch_all_rates() -> Tuple[Optional[float], Optional[float], Optional[
         fetch_rub_to_byn(),
     ]
 
-    fetch_byn_to_kzt()
-    fetch_usd_to_kzt()
+    # Используем run_in_executor для запуска синхронной функции fetch_usd_to_kzt
+    loop = asyncio.get_event_loop()
+    usd_to_kzt = await loop.run_in_executor(None, fetch_usd_to_kzt)
+
+    # Используем run_in_executor для запуска синхронной функции fetch_byn_to_kzt
+    loop = asyncio.get_event_loop()
+    byn_to_kzt = await loop.run_in_executor(None, fetch_byn_to_kzt)
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
