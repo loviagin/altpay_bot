@@ -172,7 +172,7 @@ async def get_contact(message: Message, state: FSMContext):
         f"Инструкции: {order.get('instructions') or 'не указано'}\n"
         f"Метод оплаты: {order.get('method') or 'не указано'}\n"
         f"Сумма: {order.get('price') or 'не указано'} руб.\n"
-        f"Контакт: {order.get('contact') or 'не указано'}\n"
+        f"Контакт: {contact or 'не указано'}\n"
     )
     await message.answer(summary, reply_markup=keyboard.as_markup(resize_keyboard=True))
 
@@ -188,7 +188,7 @@ async def get_contact(message: Message, state: FSMContext):
             f"Инструкции: {order.get('instructions') or 'не указано'}\n"
             f"Метод оплаты: {order.get('method') or 'не указано'}\n"
             f"Сумма: {order.get('price') or 'не указано'} руб.\n"
-            f"Контакт: {order.get('contact') or 'не указано'}\n"
+            f"Контакт: {contact or 'не указано'}\n"
         )
     )
 
