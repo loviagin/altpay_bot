@@ -1,6 +1,6 @@
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from db import get_order
@@ -29,32 +29,25 @@ async def ask_for_help(message: Message):
 
 @router.message(lambda msg: msg.text == "📝 Новая заявка")
 async def ask_for_new_order(message: Message, state: FSMContext):
-    keyboard = ReplyKeyboardBuilder()
-    keyboard.button(text="Spotify")
-    keyboard.button(text="Netflix")
-    keyboard.button(text="iCloud")
-    keyboard.button(text="Apple")
-    keyboard.button(text="Google")
-    keyboard.button(text="YouTube")
-    keyboard.button(text="Notion")
-    keyboard.button(text="GitHub")
-    keyboard.button(text="Steam")
-    keyboard.button(text="Epic Games")
-    keyboard.button(text="PlayStation")
-    keyboard.button(text="Домены и хостинг")
-    keyboard.button(text="AWS")
-    keyboard.button(text="Upwork")
-    keyboard.button(text="ChatGPT")
-    keyboard.button(text="Cursor")
-    keyboard.button(text="Claude")
-    keyboard.button(text="Udemy")
-    keyboard.button(text="Adobe")
-    keyboard.button(text="Переводы")
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Spotify"), KeyboardButton(text="Netflix")],
+            [KeyboardButton(text="iCloud"), KeyboardButton(text="Apple")],
+            [KeyboardButton(text="Google"), KeyboardButton(text="YouTube")],
+            [KeyboardButton(text="Notion"), KeyboardButton(text="GitHub")],
+            [KeyboardButton(text="Steam"), KeyboardButton(text="Epic Games")],
+            [KeyboardButton(text="PlayStation"), KeyboardButton(text="Домены и хостинг")],
+            [KeyboardButton(text="AWS"), KeyboardButton(text="Upwork")],
+            [KeyboardButton(text="ChatGPT"), KeyboardButton(text="Cursor")],
+            [KeyboardButton(text="Claude"), KeyboardButton(text="Udemy")],
+            [KeyboardButton(text="Adobe"), KeyboardButton(text="Переводы")]
+        ],
+        resize_keyboard=True
+    )
     await message.answer(
         "🧾 Новая заявка.\n\n"
         "Для ознакомления с ценой вы можете воспользоваться нашим онлайн калькулятором http://alt.lovig.in/#calculator "
-        "Выберите что нужно оплатить или введите название",
-        reply_markup=keyboard.as_markup(resize_keyboard=True)
+        "Выберите что нужно оплатить или введите название", reply_markup=keyboard
     )
     orderid = str(int(1000 + random.random() * 89999))
     await state.update_data(order_id=orderid)

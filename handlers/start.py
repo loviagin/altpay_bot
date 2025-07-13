@@ -60,7 +60,7 @@ async def new_command(message: Message, state: FSMContext):
     await message.answer(
         "🧾 Новая заявка.\n\n"
         "Для ознакомления с ценой вы можете воспользоваться нашим онлайн калькулятором http://alt.lovig.in/#calculator "
-        "Выберите что нужно оплатить или введите название", keyboard=keyboard.as_markup(resize_keyboard=True)
+        "Выберите что нужно оплатить или введите название", reply_markup=keyboard
     )
     orderid = str(int(1000 + random.random() * 89999))
     await state.update_data(order_id=orderid)
