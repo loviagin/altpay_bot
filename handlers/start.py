@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
@@ -24,7 +24,7 @@ async def start_handler(message: Message, state: FSMContext):
             await state.update_data(price=order["price"])
             await state.update_data(amount=order["amount"])
             await message.answer(
-                f"Заявка #{order_id}\nСумма: ${order['amount']}\nСервис: {order['service']}\nК оплате: {order['price']} руб."
+                f"Заявка #{order_id}\nСумма: ${order['amount']}\nСервис: {order['service']}", reply_markup=ReplyKeyboardRemove()
             )
             await message.answer("Введите ваше имя:")
             await state.set_state(OrderStates.waiting_for_name)
@@ -49,18 +49,20 @@ async def new_command(message: Message):
 @router.message(Command("status"))
 async def status_command(message: Message):
     logger.info(f"📥 Получена команда /status от {message.from_user.id if message.from_user else 'unknown'}")
-    await message.answer("Введите номер вашей заявки для проверки статуса:")
+    await message.answer("Введите номер вашей заявки для проверки статуса:", reply_markup=ReplyKeyboardRemove())
     logger.info(f"✅ Отправлен ответ на /status")
 
 @router.message(Command("help"))
 async def help_command(message: Message):
     logger.info(f"📥 Получена команда /help от {message.from_user.id if message.from_user else 'unknown'}")
+    keyboard = ReplyKeyboardBuilder()
+    keyboard.button(text="Позвать оператора")
     await message.answer(
         "🛠 AltPay Bot — помощник для оплаты зарубежных сервисов.\n\n"
         "🔹 /new — создать новую заявку\n"
         "🔹 /status — проверить статус заявки\n"
-        "🔹 /person — Позвать оператора\n\n"
-        "Подробнее: https://altpay.lovigin.com"
+        "Подробнее: https://altpay.lovigin.com",
+        reply_markup=keyboard.as_markup(resize_keyboard=True)
     )
     logger.info(f"✅ Отправлен ответ на /help")
 
@@ -92,12 +94,12 @@ async def account_exist(message: Message, state: FSMContext):
 
     if message.text == "✅ Есть":
         await update_order(data["order_id"], {"account_exist": True})
-        await message.answer("Напишите логин и пароль к аккаунту: ")
+        await message.answer("Напишите логин и пароль к аккаунту: ", reply_markup=ReplyKeyboardRemove())
         await state.set_state(OrderStates.waiting_for_account_info)
     else:
         await update_order(data["order_id"], {"account_exist": False})
         await update_order(data["order_id"], {"account_info": "Нужно создать"})
-        await message.answer("Сейчас можете предоставить любые дополнительные инструкции или пожелания: ")
+        await message.answer("Сейчас можете предоставить любые дополнительные инструкции или пожелания: ", reply_markup=ReplyKeyboardRemove())
         await state.set_state(OrderStates.waiting_for_additional_info)
 
 @router.message(OrderStates.waiting_for_account_info)
@@ -106,7 +108,7 @@ async def account_info(message: Message, state: FSMContext):
     data = await state.get_data()
 
     await update_order(data["order_id"], {"account_info": message.text})
-    await message.answer("Сейчас можете предоставить любые дополнительные инструкции или пожелания: ")
+    await message.answer("Сейчас можете предоставить любые дополнительные инструкции или пожелания: ", reply_markup=ReplyKeyboardRemove())
     await state.set_state(OrderStates.waiting_for_additional_info)
 
 @router.message(OrderStates.waiting_for_additional_info)
@@ -148,6 +150,10 @@ async def get_contact(message: Message, state: FSMContext):
         "contact": message.text,
         "status": "В обработке"
     })
+    keyboard = ReplyKeyboardBuilder()
+    keyboard.button(text="📝 Новая заявка")
+    keyboard.button(text="📦 Статус заявки")
+    keyboard.button(text="❓ Помощь")
     summary = (
         "Спасибо! Заявка передана в обработку. Мы свяжемся с вами в ближайшее время.\n"
         f"🧾 Заявка #{data["order_id"]}\n"
@@ -161,5 +167,5 @@ async def get_contact(message: Message, state: FSMContext):
         f"Сумма: {data.get('price') or 'не указано'} руб.\n"
         f"Контакт: {data.get('contact') or 'не указано'}\n"
     )
-    await message.answer(summary)
+    await message.answer(summary, reply_markup=keyboard.as_markup(resize_keyboard=True))
     await state.clear()
