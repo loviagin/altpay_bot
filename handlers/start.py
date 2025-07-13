@@ -7,6 +7,8 @@ import logging
 
 from db import get_order, update_order, get_all_orders
 from states import OrderStates
+from config import KEY
+from config import ADMIN_ID
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -63,7 +65,7 @@ async def help_command(message: Message):
     )
     logger.info(f"✅ Отправлен ответ на /help")
 
-@router.message(Command("key"))
+@router.message(Command(KEY))
 async def fetch_orders(message: Message):
     logger.info(f"📥 Получена команда /key от {message.from_user.id if message.from_user else 'unknown'}")
     data = await get_all_orders()
@@ -94,8 +96,10 @@ async def account_exist(message: Message, state: FSMContext):
         await message.answer("Напишите логин и пароль к аккаунту: ", reply_markup=ReplyKeyboardRemove())
         await state.set_state(OrderStates.waiting_for_account_info)
     else:
-        await update_order(data["order_id"], {"account_exist": False})
-        await update_order(data["order_id"], {"account_info": "Нужно создать"})
+        await update_order(data["order_id"], {
+            "account_exist": False,
+            "account_info": "Нужно создать"
+        })
         await message.answer("Сейчас можете предоставить любые дополнительные инструкции или пожелания: ", reply_markup=ReplyKeyboardRemove())
         await state.set_state(OrderStates.waiting_for_additional_info)
 
@@ -141,11 +145,16 @@ async def get_method(message: Message, state: FSMContext):
 
 @router.message(OrderStates.waiting_for_contact)
 async def get_contact(message: Message, state: FSMContext):
-    logger.info(f"📥 Получен контакт от {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
+    if message.contact:
+        contact = message.contact.phone_number
+    else:
+        contact = message.text  # если пользователь просто ввел email или ник вручную
+
+    logger.info(f"📥 Получен контакт от {message.from_user.id if message.from_user else 'unknown'}: {message.contact}")
     data = await state.get_data()
     order = await get_order(data["order_id"])
     await update_order(data["order_id"], {
-        "contact": message.text,
+        "contact": contact,
         "status": "В обработке"
     })
     keyboard = ReplyKeyboardBuilder()
@@ -166,4 +175,21 @@ async def get_contact(message: Message, state: FSMContext):
         f"Контакт: {order.get('contact') or 'не указано'}\n"
     )
     await message.answer(summary, reply_markup=keyboard.as_markup(resize_keyboard=True))
+
+    await message.bot.send_message(
+        chat_id=ADMIN_ID,
+        text=(
+            f"🧾 Заявка #{data["order_id"]}\n"
+            f"Сервис: {order['service']}\n"
+            f"Цена: ${order['amount']}\n"
+            f"Имя: {order.get('name') or 'не указано'}\n"
+            f"Наличие аккаунта: {order.get('account_exist') or 'не указано'}\n"
+            f"Доступ к аккаунту: {order.get('account_info') or 'не указано'}\n"
+            f"Инструкции: {order.get('instructions') or 'не указано'}\n"
+            f"Метод оплаты: {order.get('method') or 'не указано'}\n"
+            f"Сумма: {order.get('price') or 'не указано'} руб.\n"
+            f"Контакт: {order.get('contact') or 'не указано'}\n"
+        )
+    )
+
     await state.clear()
