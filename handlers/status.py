@@ -46,7 +46,7 @@ async def ask_for_new_order(message: Message, state: FSMContext):
     )
     await message.answer(
         "🧾 Новая заявка.\n\n"
-        "Для ознакомления с ценой вы можете воспользоваться нашим онлайн калькулятором http://alt.lovig.in/#calculator "
+        "Для ознакомления с ценой вы можете воспользоваться нашим онлайн калькулятором http://alt.lovig.in/#calculator \n"
         "Выберите что нужно оплатить или введите название", reply_markup=keyboard
     )
     orderid = str(int(1000 + random.random() * 89999))
@@ -60,7 +60,7 @@ async def process_order_id(message: Message):
 
     if order:
         summary = (
-            f"🧾 Заявка #{order_id}\n"
+            f"🧾 Заявка #```{order_id}\n```"
             f"Сервис: {order['service']}\n"
             f"Цена: ${order['amount']}\n"
             f"Имя: {order.get('name') or 'не указано'}\n"
