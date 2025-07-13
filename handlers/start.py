@@ -24,7 +24,7 @@ async def start_handler(message: Message, state: FSMContext):
         if order:
             await state.update_data(order_id=order_id)
             await message.answer(
-                f"Заявка #```{order_id}```\nСумма: ${order['amount']}\nСервис: {order['service']}", reply_markup=ReplyKeyboardRemove()
+                f"Заявка #{order_id}\nСумма: ${order['amount']}\nСервис: {order['service']}", reply_markup=ReplyKeyboardRemove()
             )
             await message.answer("Введите ваше имя:")
             await state.set_state(OrderStates.waiting_for_name)
@@ -110,7 +110,7 @@ async def get_name(message: Message, state: FSMContext):
     if to_float(message.text) is not None:
         await create_order(order_id=data['order_id'], amount=float(message.text), service=data['service'])
         await message.answer(
-            f"Заявка #```{data['order_id']}```\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()
+            f"Заявка #{data['order_id']}\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()
         )
         await message.answer("Введите ваше имя:")
         await state.set_state(OrderStates.waiting_for_name)
@@ -206,7 +206,7 @@ async def get_contact(message: Message, state: FSMContext):
     keyboard.button(text="❓ Помощь")
     summary = (
         "Спасибо! Заявка передана в обработку. Мы свяжемся с вами в ближайшее время.\n"
-        f"🧾 Заявка #```{data["order_id"]}\n```"
+        f"🧾 Заявка #{data["order_id"]}\n"
         f"Сервис: {order['service']}\n"
         f"Цена: ${order['amount']}\n"
         f"Имя: {order.get('name') or 'не указано'}\n"
@@ -222,7 +222,7 @@ async def get_contact(message: Message, state: FSMContext):
     await message.bot.send_message(
         chat_id=ADMIN_ID,
         text=(
-            f"🧾 Заявка #```{data["order_id"]}\n```"
+            f"🧾 Заявка #{data["order_id"]}\n"
             f"Сервис: {order['service']}\n"
             f"Цена: ${order['amount']}\n"
             f"Имя: {order.get('name') or 'не указано'}\n"

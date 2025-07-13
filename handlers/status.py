@@ -60,7 +60,7 @@ async def process_order_id(message: Message):
 
     if order:
         summary = (
-            f"🧾 Заявка #`{order_id}`\n"
+            f"🧾 Заявка #{order_id}\n"
             f"Сервис: {order['service']}\n"
             f"Цена: ${order['amount']}\n"
             f"Имя: {order.get('name') or 'не указано'}\n"
@@ -72,6 +72,6 @@ async def process_order_id(message: Message):
             f"Контакт: {order.get('contact') or 'не указано'}\n"
             f"Статус: {order.get('status') or 'не указан'}"
         )
-        await message.answer(summary, parse_mode="MarkdownV2")
+        await message.answer(summary)
     else:
         await message.answer("Заявка с таким номером не найдена.")
