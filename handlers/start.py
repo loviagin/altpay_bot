@@ -7,8 +7,7 @@ import logging
 
 from db import get_order, update_order, get_all_orders, create_order
 from states import OrderStates
-from config import KEY
-from config import ADMIN_ID
+from config import KEY, ADMIN_ID, KEY_SEND
 import random
 
 router = Router()
@@ -96,6 +95,30 @@ async def fetch_orders(message: Message):
     await message.answer(text)
     logger.info(f"✅ Отправлен ответ на /key")
 
+@router.message(Command(KEY_SEND))
+async def send_message(message: Message, state: FSMContext):
+    logger.info(f"📥 Получена команда /key_send от {message.from_user.id if message.from_user else 'unknown'}")
+    await message.answer("Отправьте chat id: ")
+    await state.set_state(OrderStates.waiting_for_sender_name)
+
+@router.message(OrderStates.waiting_for_sender_name)
+async def get_name(message: Message, state: FSMContext):
+    logger.info(f"📥 Получен chat id {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
+    await state.update_data(chat_id=message.text)
+    await message.answer("Сообщение: ")
+    await state.set_state(OrderStates.waiting_for_message)
+
+@router.message(OrderStates.waiting_for_message)
+async def get_name(message: Message, state: FSMContext):
+    logger.info(f"📥 Получено сообщение {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
+    data = await state.get_data()
+    await message.bot.send_message(
+        chat_id=data["chat_id"],
+        text=(message.text if message.text else ""),
+    )
+    await message.answer("Сообщение отправлено. Вернитесь в главное меню /start")
+    await state.clear()
+
 @router.message(OrderStates.waiting_for_service)
 async def get_name(message: Message, state: FSMContext):
     logger.info(f"📥 Получена услуга {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
@@ -122,7 +145,10 @@ async def get_name(message: Message, state: FSMContext):
 async def get_name(message: Message, state: FSMContext):
     logger.info(f"📥 Получено имя от {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
     data = await state.get_data()
-    await update_order(data["order_id"], {"name": message.text})
+    await update_order(data["order_id"], {
+        "name": message.text,
+        "chatid": message.chat.id
+    })
     keyboard = ReplyKeyboardBuilder()
     keyboard.button(text="✅ Есть")
     keyboard.button(text="❌ Нет, надо создать")
@@ -232,6 +258,7 @@ async def get_contact(message: Message, state: FSMContext):
             f"Метод оплаты: {order.get('method') or 'не указано'}\n"
             f"Сумма: {order.get('price') or 'не указано'} руб.\n"
             f"Контакт: {contact or 'не указано'}\n"
+            f"Chat id: {order.get('chatid') or 'не указано'}\n"
         )
     )
 

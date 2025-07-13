@@ -19,7 +19,8 @@ async def create_order(order_id: str, amount: float, service: str):
         "name": None,
         "method": None,
         "contact": None,
-        "status": "ожидает данных"
+        "status": "ожидает данных",
+        "chatid": None
     }
     await orders_collection.insert_one(order)
     print(f"✅ Новый заказ создан: {order}")
