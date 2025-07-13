@@ -20,9 +20,6 @@ async def start_handler(message: Message, state: FSMContext):
         order = await get_order(order_id)
         if order:
             await state.update_data(order_id=order_id)
-            await state.update_data(service=order["service"])
-            await state.update_data(price=order["price"])
-            await state.update_data(amount=order["amount"])
             await message.answer(
                 f"Заявка #{order_id}\nСумма: ${order['amount']}\nСервис: {order['service']}", reply_markup=ReplyKeyboardRemove()
             )
@@ -146,6 +143,7 @@ async def get_method(message: Message, state: FSMContext):
 async def get_contact(message: Message, state: FSMContext):
     logger.info(f"📥 Получен контакт от {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
     data = await state.get_data()
+    order = await get_order(data["order_id"])
     await update_order(data["order_id"], {
         "contact": message.text,
         "status": "В обработке"
@@ -157,15 +155,15 @@ async def get_contact(message: Message, state: FSMContext):
     summary = (
         "Спасибо! Заявка передана в обработку. Мы свяжемся с вами в ближайшее время.\n"
         f"🧾 Заявка #{data["order_id"]}\n"
-        f"Сервис: {data['service']}\n"
-        f"Цена: ${data['amount']}\n"
-        f"Имя: {data.get('name') or 'не указано'}\n"
-        f"Наличие аккаунта: {data.get('account_exist') or 'не указано'}\n"
-        f"Доступ к аккаунту: {data.get('account_info') or 'не указано'}\n"
-        f"Инструкции: {data.get('instructions') or 'не указано'}\n"
-        f"Метод оплаты: {data.get('method') or 'не указано'}\n"
-        f"Сумма: {data.get('price') or 'не указано'} руб.\n"
-        f"Контакт: {data.get('contact') or 'не указано'}\n"
+        f"Сервис: {order['service']}\n"
+        f"Цена: ${order['amount']}\n"
+        f"Имя: {order.get('name') or 'не указано'}\n"
+        f"Наличие аккаунта: {order.get('account_exist') or 'не указано'}\n"
+        f"Доступ к аккаунту: {order.get('account_info') or 'не указано'}\n"
+        f"Инструкции: {order.get('instructions') or 'не указано'}\n"
+        f"Метод оплаты: {order.get('method') or 'не указано'}\n"
+        f"Сумма: {order.get('price') or 'не указано'} руб.\n"
+        f"Контакт: {order.get('contact') or 'не указано'}\n"
     )
     await message.answer(summary, reply_markup=keyboard.as_markup(resize_keyboard=True))
     await state.clear()
