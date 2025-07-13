@@ -20,6 +20,9 @@ async def start_handler(message: Message, state: FSMContext):
         order = await get_order(order_id)
         if order:
             await state.update_data(order_id=order_id)
+            await state.update_data(service=order["service"])
+            await state.update_data(price=order["price"])
+            await state.update_data(amount=order["amount"])
             await message.answer(
                 f"Заявка #{order_id}\nСумма: ${order['amount']}\nСервис: {order['service']}\nК оплате: {order['price']} руб."
             )
