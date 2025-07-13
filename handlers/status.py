@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from config import ADMIN_ID
 from db import get_order
 import re
 import random
@@ -75,3 +76,18 @@ async def process_order_id(message: Message):
         await message.answer(summary)
     else:
         await message.answer("Заявка с таким номером не найдена.")
+
+@router.message()
+async def fallback_handler(message: Message):
+    user = message.from_user
+    chat_id = message.chat.id
+    text = message.text or "<non-text content>"
+
+    await message.bot.send_message(
+        chat_id=ADMIN_ID,
+        text=(
+            f"📩 Сообщение от @{user.username or 'без ника'}\n"
+            f"🆔 Chat ID: {chat_id}\n"
+            f"💬 Текст: {text}"
+        )
+    )

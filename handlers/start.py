@@ -282,23 +282,6 @@ async def get_contact(message: Message, state: FSMContext):
 
     await state.clear()
 
-@router.message()
-async def fallback_handler(message: Message):
-    # Логируем
-    user = message.from_user
-    chat_id = message.chat.id
-    text = message.text or "<non-text content>"
-
-    # Отправка админу
-    await message.bot.send_message(
-        chat_id=ADMIN_ID,
-        text=(
-            f"📩 Сообщение от @{user.username or 'без ника'}\n"
-            f"🆔 Chat ID: {chat_id}\n"
-            f"💬 Текст: {text}"
-        )
-    )
-
 def to_float(s: str) -> float | None:
     try:
         return float(s)
