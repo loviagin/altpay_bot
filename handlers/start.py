@@ -99,7 +99,7 @@ async def ask_for_help__person_command(message: Message):
     await message.answer(
         "Оператор скоро подключиться.\n\n"
         "Мы из-за всех сил торопимся отвечать быстро 🫶",
-        keyboard=ReplyKeyboardRemove()
+        reply_markup=ReplyKeyboardRemove()
     )
     logger.info(f"✅ Отправлен ответ на /person")
 
