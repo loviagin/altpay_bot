@@ -60,7 +60,7 @@ async def process_order_id(message: Message):
 
     if order:
         summary = (
-            f"🧾 Заявка #```{order_id}\n```"
+            f"🧾 Заявка #`{order_id}`\n"
             f"Сервис: {order['service']}\n"
             f"Цена: ${order['amount']}\n"
             f"Имя: {order.get('name') or 'не указано'}\n"
