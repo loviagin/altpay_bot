@@ -113,12 +113,16 @@ async def get_name(message: Message, state: FSMContext):
 async def get_name(message: Message, state: FSMContext):
     logger.info(f"📥 Получена цена {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
     data = await state.get_data()
-    await create_order(order_id=data['order_id'], amount=float(message.text), service=data['service'])
-    await message.answer(
-        f"Заявка #{data['order_id']}\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()
-    )
-    await message.answer("Введите ваше имя:")
-    await state.set_state(OrderStates.waiting_for_name)
+    if to_float(message.text) is not None:
+        await create_order(order_id=data['order_id'], amount=float(message.text), service=data['service'])
+        await message.answer(
+            f"Заявка #{data['order_id']}\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()
+        )
+        await message.answer("Введите ваше имя:")
+        await state.set_state(OrderStates.waiting_for_name)
+    else:
+        await message.answer("Напишите только число без валюты (например 44.6)")
+        await state.set_state(OrderStates.waiting_for_amount)
 
 @router.message(OrderStates.waiting_for_name)
 async def get_name(message: Message, state: FSMContext):
@@ -238,3 +242,9 @@ async def get_contact(message: Message, state: FSMContext):
     )
 
     await state.clear()
+
+def to_float(s: str) -> float | None:
+    try:
+        return float(s)
+    except ValueError:
+        return None
