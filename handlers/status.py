@@ -52,6 +52,7 @@ async def ask_for_new_order(message: Message, state: FSMContext):
     keyboard.button(text="Переводы")
     await message.answer(
         "🧾 Новая заявка.\n\n"
+        "Для ознакомления с ценой вы можете воспользоваться нашим онлайн калькулятором http://alt.lovig.in/#calculator "
         "Выберите что нужно оплатить или введите название",
         reply_markup=keyboard.as_markup(resize_keyboard=True)
     )
