@@ -129,10 +129,11 @@ async def fetch_all_rates() -> Tuple[Optional[float], Optional[float], Optional[
     """Фетчит все три курса валют одновременно"""
     tasks = [
         fetch_rub_to_byn(),
-        fetch_byn_to_kzt(),
-        fetch_usd_to_kzt()
     ]
-    
+
+    fetch_byn_to_kzt()
+    fetch_usd_to_kzt()
+
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
     rub_to_byn = results[0] if not isinstance(results[0], Exception) else None
