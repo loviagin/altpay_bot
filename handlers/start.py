@@ -5,10 +5,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 import logging
 
-from db import get_order, update_order, get_all_orders
+from db import get_order, update_order, get_all_orders, create_order
 from states import OrderStates
 from config import KEY
 from config import ADMIN_ID
+import random
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -40,10 +41,36 @@ async def start_handler(message: Message, state: FSMContext):
     logger.info(f"✅ Отправлен ответ на /start")
 
 @router.message(Command("new"))
-async def new_command(message: Message):
-    logger.info(f"📥 Получена команда /new от {message.from_user.id if message.from_user else 'unknown'}")
-    await message.answer("Для создания новой заявки перейдите на https://altpay.lovigin.com")
-    logger.info(f"✅ Отправлен ответ на /new")
+async def new_command(message: Message, state: FSMContext):
+    keyboard = ReplyKeyboardBuilder()
+    keyboard.button(text="Spotify")
+    keyboard.button(text="Netflix")
+    keyboard.button(text="iCloud")
+    keyboard.button(text="Apple")
+    keyboard.button(text="Google")
+    keyboard.button(text="YouTube")
+    keyboard.button(text="Notion")
+    keyboard.button(text="GitHub")
+    keyboard.button(text="Steam")
+    keyboard.button(text="Epic Games")
+    keyboard.button(text="PlayStation")
+    keyboard.button(text="Домены и хостинг")
+    keyboard.button(text="AWS")
+    keyboard.button(text="Upwork")
+    keyboard.button(text="ChatGPT")
+    keyboard.button(text="Cursor")
+    keyboard.button(text="Claude")
+    keyboard.button(text="Udemy")
+    keyboard.button(text="Adobe")
+    keyboard.button(text="Переводы")
+    await message.answer(
+        "🧾 Новая заявка.\n\n"
+        "Выберите что нужно оплатить или введите название",
+        reply_markup=keyboard.as_markup(resize_keyboard=True)
+    )
+    orderid = str(int(1000 + random.random() * 89999))
+    await state.update_data(order_id=orderid)
+    await state.set_state(OrderStates.waiting_for_service)
 
 @router.message(Command("status"))
 async def status_command(message: Message):
@@ -74,6 +101,24 @@ async def fetch_orders(message: Message):
     ) or "Нет заявок."
     await message.answer(text)
     logger.info(f"✅ Отправлен ответ на /key")
+
+@router.message(OrderStates.waiting_for_service)
+async def get_name(message: Message, state: FSMContext):
+    logger.info(f"📥 Получена услуга {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
+    await state.update_data(service=message.text)
+    await message.answer("Укажите цену в долларах", reply_markup=ReplyKeyboardRemove())
+    await state.set_state(OrderStates.waiting_for_amount)
+
+@router.message(OrderStates.waiting_for_amount)
+async def get_name(message: Message, state: FSMContext):
+    logger.info(f"📥 Получена цена {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
+    data = await state.get_data()
+    await create_order(order_id=data['order_id'], amount=float(message.text), service=data['service'])
+    await message.answer(
+        f"Заявка #{data['order_id']}\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()
+    )
+    await message.answer("Введите ваше имя:")
+    await state.set_state(OrderStates.waiting_for_name)
 
 @router.message(OrderStates.waiting_for_name)
 async def get_name(message: Message, state: FSMContext):
