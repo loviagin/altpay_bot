@@ -12,3 +12,5 @@ class OrderStates(StatesGroup):
 
     waiting_for_sender_name = State()
     waiting_for_message = State()
+
+    loading_bot = State()

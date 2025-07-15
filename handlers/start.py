@@ -149,6 +149,8 @@ async def get_name(message: Message, state: FSMContext):
     logger.info(f"📥 Получена цена {message.from_user.id if message.from_user else 'unknown'}: {message.text}")
     data = await state.get_data()
     if to_float(message.text) is not None:
+        await message.answer("Создаем заявку 🤑")
+        await state.set_state(OrderStates.loading_bot)
         await create_order(order_id=data['order_id'], amount=float(message.text), service=data['service'])
         await message.answer(
             f"Заявка #{data['order_id']}\nСумма: ${message.text}\nСервис: {data['service']}", reply_markup=ReplyKeyboardRemove()

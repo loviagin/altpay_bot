@@ -55,8 +55,10 @@ async def ask_for_new_order(message: Message, state: FSMContext):
     await state.set_state(OrderStates.waiting_for_service)
 
 @router.message(lambda msg: re.fullmatch(r"\d{5,}", msg.text or ""))
-async def process_order_id(message: Message):
+async def process_order_id(message: Message, state: FSMContext):
     order_id = message.text
+    await state.set_state(OrderStates.loading_bot)
+    await message.answer("Ищем Вашу заявку")
     order = await get_order(order_id)
 
     if order:
@@ -76,6 +78,8 @@ async def process_order_id(message: Message):
         await message.answer(summary)
     else:
         await message.answer("Заявка с таким номером не найдена.")
+
+    await state.clear()
 
 @router.message()
 async def fallback_handler(message: Message):
